@@ -38,3 +38,9 @@ export const collector = () => ({
     return Q.ninvoke(InstagramModel, 'findOneAndUpdate', { time: stats.time }, stats, { upsert: true, new: true });
   }
 });
+
+export const stats = () => ({
+  get: (limit) => {
+    return InstagramModel.find({}).limit(limit).select({ time: 1, stats: 1 }).exec();
+  }
+});
