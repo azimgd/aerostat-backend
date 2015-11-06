@@ -10,8 +10,9 @@ server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
 server.get('/stats', function (req, res, next) {
+  const count = req.params['count'] ? parseInt(req.params['count']) : 20;
 
-  stats().get(10).then((stats) => {
+  stats().get(count).then((stats) => {
     res.send(stats);
   });
 
