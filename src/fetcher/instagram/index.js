@@ -42,5 +42,9 @@ export const collector = () => ({
 export const stats = () => ({
   get: (limit) => {
     return InstagramModel.find({}).limit(limit).select({ time: 1, stats: 1 }).exec();
-  }
+  },
+
+  getRecent: (limit) => {
+    return InstagramModel.find({}).limit(limit).select({ time: 1, stats: 1 }).sort('-time').exec();
+  },
 });

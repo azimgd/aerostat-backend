@@ -12,7 +12,7 @@ server.use(restify.bodyParser());
 server.get('/stats', function (req, res, next) {
   const count = req.params['count'] ? parseInt(req.params['count']) : 20;
 
-  stats().get(count).then((stats) => {
+  stats().getRecent(count).then((stats) => {
     res.send(stats);
   });
 
