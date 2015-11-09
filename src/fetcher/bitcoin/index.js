@@ -1,54 +1,35 @@
-import BitcoinModel from './schema';
-import Q from 'q';
+import Aerostat from 'aerostat';
+import moment from 'moment';
+import {fetcher, collector} from './worker';
 
 /**
  *
  */
-export const fetcher = () => ({
-  parse: (response) => {
-    if(response.errors !== undefined) {
-      return false;
+const Fetcher = () => ({
+  onSuccess: (res) => {
+    const btcfetcher = fetcher();
+    const data = btcfetcher.parse(res.response.response.data);
+    const price = btcfetcher.getBitcoinPrice(data);
+
+    if(price) {
+      const btccollector = collector();
+      const preparedData = btccollector.prepare(price, moment().unix());
+      btccollector.store(preparedData).then(console.log, console.log);
     }
-
-    return response.data;
-  },
-
-  getBitcoinPrice: (data) => {
-    return data.amount || false;
-  },
-
-  getBitcoinCurrency: (data) => {
-    return data.currency || false;
   }
 });
 
-/**
- *
- */
-export const collector = () => ({
-  validate: (stats) => {
+export const bitcoinSubscriber = (Aerostat) => {
+  const jobName = 'bitcoin';
+  const jobConsumer = Aerostat.consumer(jobName);
 
-  },
+  Aerostat.config.baseUrl = 'https://api.coinbase.com/v2';
+  Aerostat.config.delay = 120000;
 
-  prepare: (price, currency, time) => {
-    return {
-      price: price,
-      currency: currency,
-      time: time
-    };
-  },
+  Aerostat.producer(jobName, {
+    url: '/prices/buy?currency=USD'
+  }).create();
 
-  store: (data) => {
-    return Q.ninvoke(BitcoinModel, 'findOneAndUpdate', { time: data.price }, data, { upsert: true, new: true });
-  }
-});
-
-export const data = () => ({
-  get: (limit) => {
-    return BitcoinModel.find({}).limit(limit).select({ time: 1, stats: 1 }).exec();
-  },
-
-  getRecent: (limit) => {
-    return BitcoinModel.find({}).limit(limit).select({ time: 1, stats: 1 }).sort('-time').exec();
-  },
-});
+  jobConsumer.onSuccess(Fetcher().onSuccess);
+  jobConsumer.consume(jobConsumer.callback);
+};

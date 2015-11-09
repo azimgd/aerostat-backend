@@ -1,50 +1,34 @@
-import InstagramModel from './schema';
-import Q from 'q';
+import moment from 'moment';
+import {fetcher, collector} from './worker';
 
 /**
  *
  */
-export const fetcher = () => ({
-  parse: (response) => {
-    if(response.meta.code !== 200) {
-      return false;
+const Fetcher = () => ({
+  onSuccess: (res) => {
+    const igfetcher = fetcher();
+    const user = igfetcher.parse(res.response.response.data);
+    const stats = igfetcher.getUserCounts(user);
+
+    if(stats) {
+      const igcollector = collector();
+      const preparedStats = igcollector.prepare(user.id, moment().unix(), stats);
+      igcollector.store(preparedStats).then(console.log, console.log);
     }
-
-    return response.data;
-  },
-
-  getUserCounts: (user) => {
-    return user.counts || false;
   }
 });
 
-/**
- *
- */
-export const collector = () => ({
-  validate: (stats) => {
+export const instagramSubscriber = (Aerostat) => {
+  const jobName = 'instagram';
+  const jobConsumer = Aerostat.consumer(jobName);
 
-  },
+  Aerostat.config.baseUrl = 'https://api.instagram.com/v1';
+  Aerostat.config.delay = 120000;
 
-  prepare: (user, time, stats) => {
-    return {
-      user: user,
-      time: time,
-      stats: stats
-    };
-  },
+  Aerostat.producer(jobName, {
+    url: '/users/13460080?access_token=557596280.1677ed0.e0748a013d3f4ed9825612be0d8cceef'
+  }).create();
 
-  store: (stats) => {
-    return Q.ninvoke(InstagramModel, 'findOneAndUpdate', { time: stats.time }, stats, { upsert: true, new: true });
-  }
-});
-
-export const stats = () => ({
-  get: (limit) => {
-    return InstagramModel.find({}).limit(limit).select({ time: 1, stats: 1 }).exec();
-  },
-
-  getRecent: (limit) => {
-    return InstagramModel.find({}).limit(limit).select({ time: 1, stats: 1 }).sort('-time').exec();
-  },
-});
+  jobConsumer.onSuccess(Fetcher().onSuccess);
+  jobConsumer.consume(jobConsumer.callback);
+};
