@@ -1,7 +1,7 @@
 import Mongoose from '../config';
 const Schema = Mongoose.Schema;
 
-const commentSchema = new Schema({
+const instagramSchema = new Schema({
   user: Number,
   stats: {
     media: Number,
@@ -11,5 +11,5 @@ const commentSchema = new Schema({
   time: Number
 });
 
-const Comment = Mongoose.model('Comment', commentSchema);
-export default Comment;
+const Instagram = Mongoose.model('Instagram', instagramSchema);
+export default Instagram;
