@@ -1,5 +1,6 @@
 import restify from 'restify';
-import {stats} from './instagram/index';
+import {instagramStats} from './instagram/worker';
+import {bitcoinStats} from './bitcoin/worker';
 
 const server = restify.createServer({
   name: 'myapp',
@@ -9,10 +10,21 @@ server.use(restify.acceptParser(server.acceptable));
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
-server.get('/stats', function (req, res, next) {
+server.get('/stats/instagram', function (req, res, next) {
   const count = req.params['count'] ? parseInt(req.params['count']) : 20;
 
-  stats().getRecent(count).then((stats) => {
+  instagramStats().getRecent(count).then((stats) => {
+    res.send(stats);
+  });
+
+  return next();
+});
+
+
+server.get('/stats/bitcoin', function (req, res, next) {
+  const count = req.params['count'] ? parseInt(req.params['count']) : 20;
+
+  bitcoinStats().getRecent(count).then((stats) => {
     res.send(stats);
   });
 
