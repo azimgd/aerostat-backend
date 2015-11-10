@@ -19,15 +19,12 @@ const Fetcher = () => ({
   }
 });
 
-export const bitcoinSubscriber = (Aerostat) => {
+export const bitcoinSubscriber = () => {
   const jobName = 'bitcoin';
   const jobConsumer = Aerostat.consumer(jobName);
 
-  Aerostat.config.baseUrl = 'https://api.coinbase.com/v2';
-  Aerostat.config.delay = 120000;
-
   Aerostat.producer(jobName, {
-    url: '/prices/buy?currency=USD'
+    url: 'https://api.coinbase.com/v2/prices/buy?currency=USD'
   }).create();
 
   jobConsumer.onSuccess(Fetcher().onSuccess);

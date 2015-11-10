@@ -4,6 +4,7 @@ import {bitcoinSubscriber} from './bitcoin/index';
 
 //starting web interface
 Aerostat.init().start();
+Aerostat.config.delay = 1200;
 
-instagramSubscriber(Aerostat);
-bitcoinSubscriber(Aerostat);
+instagramSubscriber();
+bitcoinSubscriber();
