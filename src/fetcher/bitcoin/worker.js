@@ -45,7 +45,7 @@ export const collector = () => ({
   }
 });
 
-export const data = () => ({
+export const stats = () => ({
   get: (limit) => {
     return BitcoinModel.find({}).limit(limit).select({ time: 1, stats: 1 }).exec();
   },
