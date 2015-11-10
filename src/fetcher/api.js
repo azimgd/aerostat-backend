@@ -1,6 +1,6 @@
 import restify from 'restify';
-import {instagramStats} from './instagram/worker';
-import {bitcoinStats} from './bitcoin/worker';
+import {stats as instagramStats} from './instagram/worker';
+import {stats as bitcoinStats} from './bitcoin/worker';
 
 const server = restify.createServer({
   name: 'myapp',
