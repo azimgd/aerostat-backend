@@ -47,10 +47,10 @@ export const collector = () => ({
 
 export const stats = () => ({
   get: (limit) => {
-    return BitcoinModel.find({}).limit(limit).select({ time: 1, stats: 1 }).exec();
+    return BitcoinModel.find({}).limit(limit).select({ time: 1, price: 1 }).exec();
   },
 
   getRecent: (limit) => {
-    return BitcoinModel.find({}).limit(limit).select({ time: 1, stats: 1 }).sort('-time').exec();
+    return BitcoinModel.find({}).limit(limit).select({ time: 1, price: 1 }).sort('-time').exec();
   },
 });
